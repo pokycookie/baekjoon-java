@@ -58,7 +58,7 @@ public class Solution1865 {
         for (int waypoint = 1; waypoint < n + 1; waypoint++) {
             for (int start = 1; start < n + 1; start++) {
                 for (int end = 1; end < n + 1; end++) {
-                    int newPath = dist[start][waypoint] + dist[waypoint][end];
+                    int newPath = dist[start][waypoint] + dist[waypoint][end]; // 오버플로우 발생 가능성 있음
                     dist[start][end] = Math.min(dist[start][end], newPath);
                     if (start == end && dist[start][end] < 0) {
                         return true;
