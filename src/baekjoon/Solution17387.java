@@ -31,7 +31,7 @@ public class Solution17387 {
         int c4 = ccw(b1, b2, a2);
 
         if (isSame()) {
-            System.out.println(1);
+            return true;
         }
         if (pm(c1, c2) && pm(c3, c4)) {
             return true;
@@ -45,14 +45,7 @@ public class Solution17387 {
         if (pmz(c1, c2) && pmz(c3, c4)) {
             return true;
         }
-//        if (pmz(c1, c2) || pmz(c3, c4)) {
-//        	return true;
-//        }
-        if (c1 == 0 && c2 == 0 && c3 == 0 & c4 == 0 && isOverlap()) {
-            return true;
-        }
-
-        return false;
+        return c1 == 0 && c2 == 0 && c3 == 0 & c4 == 0 && isOverlap();
     }
 
     static boolean isSame() {
@@ -63,33 +56,21 @@ public class Solution17387 {
     }
 
     static boolean isOverlap() {
-        Pos A = a1.isTopRightThen(a2) ? a1 : a2;
-        Pos B = b1.isTopRightThen(b2) ? b1 : b2;
-
-        Pos a = A == a1 ? a2 : a1;
+        Pos vec = a1.to(a2);
+        Pos B = b1.isAfter(b2, vec) ? b1 : b2;
         Pos b = B == b1 ? b2 : b1;
 
-        if (A.isTopRightThen(B) && B.isTopRightThen(a) && a.isTopRightThen(b)) {
-            System.out.println(1);
-            System.out.println(B);
-            System.out.println(b);
+        if (B.isAfter(a2, vec) && a2.isAfter(b, vec) && b.isAfter(a1, vec)) {
             return true;
         }
-        if (B.isTopRightThen(A) && A.isTopRightThen(b) && b.isTopRightThen(a)) {
-            System.out.println(2);
+        if (a2.isAfter(B, vec) && B.isAfter(a1, vec) && a1.isAfter(b, vec)) {
             return true;
         }
 
-        if (A.isTopRightThen(B) && A.isTopRightThen(b) && b.isTopRightThen(a)) {
-            System.out.println(3);
+        if (B.isAfter(a2, vec) && a1.isAfter(b, vec)) {
             return true;
         }
-        if (B.isTopRightThen(A) && B.isTopRightThen(a) && a.isTopRightThen(b)) {
-            System.out.println(4);
-            return true;
-        }
-
-        return false;
+        return a2.isAfter(B, vec) && b.isAfter(a1, vec);
     }
 
     static boolean pm(int c1, int c2) {
@@ -124,21 +105,10 @@ public class Solution17387 {
             return new Pos(o.x - x, o.y - y);
         }
 
-        Pos getUnitVector(Pos o) {
-            Pos vector = this.to(o);
-            Function<Long, Integer> unit = v -> v > 0 ? 1 : v < 0 ? -1 : 0;
-            vector.x = unit.apply(vector.x);
-            vector.y = unit.apply(vector.y);
-            return  vector;
-        }
-
-//        boolean isAfter(Pos o, Pos vec) {
-//            if (this.x - o.x)
-//        }
-
-        boolean isTopRightThen(Pos o) {
-            if (this.y >= o.y) return true;
-            return this.x >= o.x;
+        boolean isAfter(Pos o, Pos vec) {
+            Function<Long, Integer> sign = v -> v > 0 ? 1 : v < 0 ? -1 : 0;
+            Pos v = o.to(this);
+            return sign.apply(v.x).equals(sign.apply(vec.x)) && sign.apply(v.y).equals(sign.apply(vec.y));
         }
 
         boolean equals(Pos o) {
