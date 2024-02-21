@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -14,8 +13,9 @@ public class Solution1208 {
 
     static int N, S;
     static long ans;
-    static int[] seq;
-    static List<Integer> L, R;
+    static int[] seq, R;
+    static List<Integer> L;
+    static final int BOUND = 20_000_000;
 
     public static void main(String[] args) throws IOException {
         st = new StringTokenizer(br.readLine());
@@ -29,71 +29,35 @@ public class Solution1208 {
         }
 
         L = new ArrayList<>();
-        R = new ArrayList<>();
+        R = new int[BOUND * 2 + 1];
 
-        backtracking(0, N / 2, L, 0); L.remove(0);
-        backtracking(N / 2, N, R, 0); R.remove(0);
-        R.sort(Comparator.naturalOrder());
+        backtrackingL(0, 0); L.remove(0);
+        backtrackingR(N / 2, 0); R[BOUND]--;
 
         if (S == 0) ans -= 2;
         for (int l : L) {
-            if (binarySearch(S - l)) ans += upperBound(S - l) - lowerBound(S - l);
+            ans += R[S - l + BOUND];
         }
         System.out.println(ans);
     }
 
-    static void backtracking(int i, int max, List<Integer> store, int acc) {
-        if (i == max) {
+    static void backtrackingL(int i, int acc) {
+        if (i == N / 2) {
             if (acc == S) ans++;
-            store.add(acc);
+            L.add(acc);
             return;
         }
-        backtracking(i + 1, max, store, acc);
-        backtracking(i + 1, max, store, acc + seq[i]);
+        backtrackingL(i + 1, acc);
+        backtrackingL(i + 1,acc + seq[i]);
     }
 
-    static boolean binarySearch(int target) {
-        int left = -1; // false
-        int right = R.size(); // true
-
-        if (R.get(right - 1) < target) return false;
-
-        int mid;
-        while (left + 1 < right) {
-            mid = (left + right) / 2;
-            if (R.get(mid) >= target) right = mid;
-            else left = mid;
+    static void backtrackingR(int i, int acc) {
+        if (i == N) {
+            if (acc == S) ans++;
+            R[acc + BOUND]++;
+            return;
         }
-        return R.get(right) == target;
-    }
-
-    static int lowerBound(int target) {
-        int left = -1; // false
-        int right = R.size(); // true
-
-        if (R.get(right - 1) < target) return -1;
-
-        int mid;
-        while (left + 1 < right) {
-            mid = (left + right) / 2;
-            if (R.get(mid) >= target) right = mid;
-            else left = mid;
-        }
-        return right;
-    }
-
-    static int upperBound(int target) {
-        int left = -1; // false
-        int right = R.size(); // true
-
-        if (R.get(right - 1) <= target) return R.size();
-
-        int mid;
-        while (left + 1 < right) {
-            mid = (left + right) / 2;
-            if (R.get(mid) > target) right = mid;
-            else left = mid;
-        }
-        return right;
+        backtrackingR(i + 1, acc);
+        backtrackingR(i + 1, acc + seq[i]);
     }
 }
