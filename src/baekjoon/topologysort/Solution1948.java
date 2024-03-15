@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
@@ -19,7 +18,6 @@ public class Solution1948 {
     static List<Integer>[] graph, PREV;
     static List<Path>[] rev;
     static int[] indegree, outdegree, time;
-    static boolean[] visited;
 
     public static void main(String[] args) throws IOException {
         V = Integer.parseInt(br.readLine());
@@ -76,20 +74,17 @@ public class Solution1948 {
             for(int prev : PREV[i]) outdegree[prev]++;
         }
 
-        System.out.println(Arrays.toString(outdegree));
-        System.out.println(Arrays.toString(PREV));
-
         queue = new ArrayDeque<>();
         queue.offer(e);
 
-        visited = new boolean[V + 1];
+
         while (!queue.isEmpty()) {
             int v = queue.poll();
             for (int prev : PREV[v]) {
-                if (visited[prev]) continue;
-                visited[prev] = true;
+                if (outdegree[prev] == 0) continue;
+                cnt++;
                 queue.offer(prev);
-                cnt += outdegree[prev];
+                outdegree[prev]--;
             }
         }
 
