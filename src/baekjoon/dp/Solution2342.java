@@ -3,87 +3,43 @@ package baekjoon.dp;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Solution2342 {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static StringTokenizer st;
 
-    static int c, ans;
-    static int[] prev, curr;
-    static final int MAX = 500_000;
+    static int ans;
+    static int[][][] dp = new int[100_000][5][5];
+    static List<Integer> seq = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         st = new StringTokenizer(br.readLine());
-
-        prev = new int[1 << 5];
-        for (int i = 0; i < 32; i++) prev[i] = MAX;
-
-        c = Integer.parseInt(st.nextToken());
-        if (c == 0) return;
-        prev[(1 << c) + 1] = 2;
-
         while (true) {
-            c = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
             if (c == 0) break;
-
-            curr = new int[1 << 5];
-            for (int i = 0; i < 32; i++) curr[i] = MAX;
-
-            for (int i = 0; i < 32; i++) {
-                if (prev[i] == MAX) continue;
-                int[] bits = get(i);
-                if (c == bits[0] || c == bits[1]) {
-                    curr[i] = Math.min(curr[i], prev[i] + 1);
-                    continue;
-                }
-                for (int j = 0; j < 2; j++) {
-                    int bit = (1 << c) + (1 << bits[(j + 1) % 2]);
-                    curr[bit] = Math.min(curr[bit], prev[i] + move(bits[j], c));
-                }
-            }
-            prev = curr;
+            seq.add(c);
         }
-
-        ans = MAX;
-        for (int i = 0; i < 32; i++) {
-            if (prev[i] == MAX) continue;
-            ans = Math.min(ans, prev[i]);
-        }
+        ans = dp(0, 0, 0);
         System.out.println(ans);
     }
 
-    static int[] get(int bit) {
-        int[] res = {-1, -1};
-        for (int i = 0; i < 5; i++) {
-            if ((bit & (1 << i)) == 0) continue;
-            if (res[0] == -1) res[0] = i;
-            else res[1] = i;
-        }
-        return res;
+    static int dp(int v1, int v2, int i) {
+        if (i == seq.size()) return 0;
+        if (dp[i][v1][v2] > 0) return dp[i][v1][v2];
+        int v3 = seq.get(i);
+        if (v1 == v3 || v2 == v3) return dp(v1, v2, i + 1) + 1;
+        int t1 = dp(v1, v3, i + 1) + w(v2, v3);
+        int t2 = dp(v2, v3, i + 1) + w(v1, v3);
+        return dp[i][v1][v2] = Math.min(t1, t2);
     }
 
-    static int move(int s, int e) {
+    static int w(int s, int e) {
         if (s == 0) return 2;
         if (s == e) return 1;
         if ((s + 2) % 4 == e % 4) return 4;
         return 3;
     }
 }
-
-/*
-1 2 2 4 0
-
-dp[1][00011] = 2
-
-dp[2][00101] = dp[1][00011] + 3 = 5
-dp[2][00110] = dp[1][00011] + 2 = 4
-
-dp[3][00101] = dp[2][00101] + 1 = 6
-dp[3][00110] = dp[2][00110] + 1 = 5
-
-dp[4][10001] = dp[3][00101] + 4 = 10
-dp[4][10100] = dp[3][00101] + 2 = 8
-dp[4][10010] = dp[3][00110] + 4 = 9
-dp[4][10100] = dp[3][00110] + 3 = 8
-*/
