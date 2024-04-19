@@ -13,7 +13,7 @@ public class Solution20303 {
 
     static int N, M, K;
     static int[] candy;
-    static int[][] dp;
+    static int[] dp, prev;
     static boolean[] visited;
     static List<Integer>[] graph;
     static List<Bag> group;
@@ -50,20 +50,16 @@ public class Solution20303 {
             group.add(dfs(v));
         }
 
-        dp = new int[group.size()][K + 1];
-
-        Bag first = group.get(0);
-        for (int w = 0; w < K + 1; w++) {
-            if (first.w < w) dp[0][w] = first.v;
-        }
-        for (int i = 1; i < group.size(); i++) {
-            for (int w = 0; w < K + 1; w++) {
-                Bag curr = group.get(i);
-                if (w - curr.w > 0) dp[i][w] = Math.max(dp[i - 1][w], dp[i - 1][w - curr.w] + curr.v);
-                else dp[i][w] = dp[i - 1][w];
+        prev = new int[K + 1];
+        for (Bag curr : group) {
+            dp = new int[K + 1];
+            for (int w = 1; w < K + 1; w++) {
+                if (w - curr.w > 0) dp[w] = Math.max(prev[w], prev[w - curr.w] + curr.v);
+                else dp[w] = prev[w];
             }
+            prev = dp;
         }
-        System.out.println(dp[group.size() - 1][K]);
+        System.out.println(dp[K]);
     }
 
     static Bag dfs(int v) {
