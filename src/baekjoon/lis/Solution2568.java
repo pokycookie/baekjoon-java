@@ -3,8 +3,6 @@ package baekjoon.lis;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 
 public class Solution2568 {
@@ -12,71 +10,62 @@ public class Solution2568 {
     static StringBuilder sb = new StringBuilder();
     static StringTokenizer st;
 
-    static int N, A, B, idx, tgt;
-    static int[] seq, log, inputs, lis, origin;
-    static boolean[] ans = new boolean[500_001];
-    static List<Integer> tLis = new ArrayList<>();
+    static final int MAX = 500_001;
+    static int N, A, B, idx, lisIdx;
+    static int[] seq, log, lis, inputs, origin;
+    static boolean[] ans = new boolean[MAX];
 
     public static void main(String[] args) throws IOException {
         N = Integer.parseInt(br.readLine());
 
-        inputs = new int[500_001];
-        origin = new int[500_001];
+        inputs = new int[MAX];
+        origin = new int[MAX];
+
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
             A = Integer.parseInt(st.nextToken());
             B = Integer.parseInt(st.nextToken());
             inputs[A] = B;
             origin[B] = A;
+            ans[A] = true;
         }
 
         seq = new int[N];
-        for (int v : inputs) {
-            if (v == 0) continue;
-            seq[idx++] = v;
-            ans[origin[v]] = true;
-        }
+        for (int v : inputs) if (v > 0) seq[idx++] = v;
 
         log = new int[N];
-        for (int i = 0; i < N; i++) {
-            int res = lowerBound(seq[i]);
-            if (res == -1) {
-                tLis.add(seq[i]);
-                log[i] = tLis.size() - 1;
-            } else {
-                tLis.set(res, seq[i]);
-                log[i] = res;
-            }
-        }
+        lis = new int[N];
 
-        tgt = tLis.size() - 1;
-        idx = tLis.size() - 1;
+        for (int i = 0; i < N; i++) lowerBound(i);
+        if (lis[lisIdx] == 0) lisIdx--;
 
-        lis = new int[tLis.size()];
+        sb.append(N - lisIdx - 1).append("\n");
         for (int i = N - 1; i >= 0; i--) {
-            if (log[i] != tgt) continue;
+            if (log[i] != lisIdx) continue;
             ans[origin[seq[i]]] = false;
-            tgt--;
+            lisIdx--;
         }
-
-        sb.append(N - tLis.size()).append("\n");
-        for (int i = 0; i < 500_001; i++) {
-            if (ans[i]) sb.append(i).append("\n");
-        }
+        for (int i = 0; i < MAX; i++) if (ans[i]) sb.append(i).append("\n");
         System.out.print(sb);
     }
 
-    static int lowerBound(int t) {
+    static void lowerBound(int i) {
+        int v = seq[i];
         int l = 0; // false
-        int r = tLis.size() - 1; // true
+        int r = lisIdx; // true
 
-        if (tLis.isEmpty() || t > tLis.get(r)) return -1;
-        if (t <= tLis.get(l)) return 0;
+        if (lisIdx == 0 || lis[lisIdx - 1] < v) {
+            lis[lisIdx] = v;
+            log[i] = lisIdx++;
+            return;
+        }
+        if (lis[0] >= v) r = 0;
         while (l + 1 < r) {
             int m = (l + r) / 2;
-            if (tLis.get(m) >= t) r = m;
+            if (lis[m] >= v) r = m;
             else l = m;
         }
-        return r;
+        lis[r] = v;
+        log[i] = r;
     }
 }
