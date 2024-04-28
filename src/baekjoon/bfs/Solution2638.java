@@ -31,7 +31,6 @@ public class Solution2638 {
         while (cnt > 0) {
             visited = new boolean[R][C];
             spread(0, 0);
-
             visited = new boolean[R][C];
             melt(0, 0);
             ans++;
