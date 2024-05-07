@@ -3,68 +3,68 @@ package baekjoon.bruteforce;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class Solution20008 {
-    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static StringTokenizer st;
+    public class Solution20008 {
+        static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        static StringTokenizer st;
 
-    static int N, HP, ans;
-    static int[] cool, deal;
-    static Queue<S> queue;
+        static int N, HP, ans;
+        static int[] cool, deal, tgt;
+        static boolean[] visited;
 
-
-    public static void main(String[] args) throws IOException {
-        st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        HP = Integer.parseInt(st.nextToken());
-
-        cool = new int[N];
-        deal = new int[N];
-
-        for (int i = 0; i < N; i++) {
+        public static void main(String[] args) throws IOException {
             st = new StringTokenizer(br.readLine());
-            cool[i] = Integer.parseInt(st.nextToken());
-            deal[i] = Integer.parseInt(st.nextToken());
+            N = Integer.parseInt(st.nextToken());
+            HP = Integer.parseInt(st.nextToken());
+
+            cool = new int[N];
+            deal = new int[N];
+            tgt = new int[N];
+            visited = new boolean[N];
+
+            for (int i = 0; i < N; i++) {
+                st = new StringTokenizer(br.readLine());
+                cool[i] = Integer.parseInt(st.nextToken());
+                deal[i] = Integer.parseInt(st.nextToken());
+            }
+
+            ans = Integer.MAX_VALUE;
+            backtracking(0);
+            System.out.println(ans);
         }
 
-        queue = new ArrayDeque<>();
-        queue.offer(new S(HP));
+        static void solution() {
+            int hp = HP;
+            int[] c = new int[N];
 
-        while (!queue.isEmpty()) {
-            S curr = queue.poll();
-            if (curr.hp <= 0) {
-                ans = curr.t;
-                break;
+            for (int t = 0; t < 101; t++) {
+                if (hp <= 0) {
+                    ans = Math.min(ans, t);
+                    break;
+                }
+                int d = 0;
+                for (int i = 0; i < N; i++) {
+                    if (--c[tgt[i]] <= 0 && d == 0) {
+                        d = deal[tgt[i]];
+                        c[tgt[i]] = cool[tgt[i]];
+                    }
+                }
+                hp -= d;
+            }
+        }
+
+        static void backtracking(int cnt) {
+            if (cnt == N) {
+                solution();
+                return;
             }
             for (int i = 0; i < N; i++) {
-                S next = curr.next();
-                if (next.c[i] <= 0) {
-                    next.hp -= deal[i];
-                    next.c[i] = cool[i];
-                }
-                queue.offer(next);
+                if (visited[i]) continue;
+                visited[i] = true;
+                tgt[cnt] = i;
+                backtracking(cnt + 1);
+                visited[i] = false;
             }
         }
-        System.out.println(ans);
     }
-
-    static class S {
-        int[] c = new int[N];
-        int hp;
-        int t;
-
-        S(int hp) {
-            this.hp = hp;
-        }
-
-        S next() {
-            S next = new S(hp);
-            for (int i = 0; i < N; i++) next.c[i] = c[i] - 1;
-            next.t = t + 1;
-            return next;
-        }
-    }
-}
