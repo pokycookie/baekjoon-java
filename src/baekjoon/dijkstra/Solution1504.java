@@ -12,11 +12,11 @@ public class Solution1504 {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static StringTokenizer st;
 
-    static final int MAX = 600_000_000;
+    static final int MAX = 800_000;
     static int N, E, V1, V2;
     static int[] dist;
     static List<Path>[] graph;
-    static PriorityQueue<Path> pq = new PriorityQueue<>((o1, o2) -> o1.w - o2.w);
+    static PriorityQueue<Path> pq;
 
     public static void main(String[] args) throws IOException {
         st = new StringTokenizer(br.readLine());
@@ -39,8 +39,6 @@ public class Solution1504 {
         V1 = Integer.parseInt(st.nextToken());
         V2 = Integer.parseInt(st.nextToken());
 
-        dist = new int[N + 1];
-
         dijkstra(1);
         int toV1 = dist[V1];
         int toV2 = dist[V2];
@@ -54,16 +52,20 @@ public class Solution1504 {
 
         int p1 = toV1 + V1V2 + fromV2;
         int p2 = toV2 + V1V2 + fromV1;
+
+        if (toV1 == MAX || V1V2 == MAX || fromV2 == MAX) p1 = MAX;
+        if (toV2 == MAX || V1V2 == MAX || fromV1 == MAX) p2 = MAX;
         int ans = Math.min(p1, p2);
 
-        System.out.println(ans >= MAX ? -1 : ans);
+        System.out.println(ans == MAX ? -1 : ans);
     }
 
     static void dijkstra(int start) {
+        dist = new int[N + 1];
         for (int i = 0; i < N + 1; i++) dist[i] = MAX;
         dist[start] = 0;
 
-        pq.clear();
+        pq = new PriorityQueue<>((o1, o2) -> o1.w - o2.w);
         pq.offer(new Path(start, 0));
 
         while (!pq.isEmpty()) {
